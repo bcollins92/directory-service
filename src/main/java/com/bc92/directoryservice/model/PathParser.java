@@ -1,6 +1,6 @@
 package com.bc92.directoryservice.model;
 
-import com.bc92.directoryservice.utilities.DirectoryServiceConstants;
+import com.bc92.projectsdk.constants.DirectoryServiceConstants;
 
 /**
  * Class for iterating through path elements, to be used by Directory to search for nodes
@@ -15,7 +15,7 @@ public class PathParser {
 
   public PathParser(final String primitivePath) {
     this.primitivePath = primitivePath;
-    this.validatePath(primitivePath);
+    validatePath(primitivePath);
     this.build(primitivePath);
   }
 
@@ -40,7 +40,7 @@ public class PathParser {
     curr = root;
   }
 
-  private void validatePath(final String primitivePath) {
+  public static void validatePath(final String primitivePath) {
     if (primitivePath == null || primitivePath.isEmpty()) {
       throw new InvalidPathException(InvalidPathException.NULL_EMPTY_PATH);
     }
@@ -49,7 +49,6 @@ public class PathParser {
       throw new InvalidPathException(InvalidPathException.INVALID_CHARS, primitivePath);
     }
   }
-
 
   public String getPrimitivePath() {
     return primitivePath;

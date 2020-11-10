@@ -2,7 +2,12 @@ package com.bc92.directoryservice.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import java.util.HashSet;
+import java.util.Set;
+import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.Test;
+import com.bc92.directoryservice.dto.DirElementDTO;
+import com.bc92.directoryservice.dto.DirElementDTO.DirElementType;
 
 class DirectoryTest {
 
@@ -160,6 +165,20 @@ class DirectoryTest {
   }
 
 
+  @Test
+  void of_validElementsSet_resutrsDirectoryTree() {
+
+    Directory dir = Directory.of(this.getElementSet());
+
+    // do bunch of tests on dir
+
+    System.out.println(dir.toString());
+
+
+
+  }
+
+
   private Directory getDirectory() {
     DirectoryNode root = new DirectoryNode("root");
 
@@ -168,5 +187,23 @@ class DirectoryTest {
 
     return new Directory(root);
   }
+
+
+  private Set<DirElementDTO> getElementSet() {
+ // @formatter:off
+    DirElementDTO[] arr = {
+        new DirElementDTO(DirElementType.FOLDER, "TestOwner", "folder1", "root/folder1", "root", new byte[] {}),
+        new DirElementDTO(DirElementType.FOLDER, "TestOwner", "folder2", "root/folder2", "root", new byte[] {}),
+        new DirElementDTO(DirElementType.FOLDER, "TestOwner", "folder1-1", "root/folder1/folder1-1", "root/folder1/", new byte[] {}),
+        new DirElementDTO(DirElementType.FOLDER, "TestOwner", "folder1-2", "root/folder1/folder1-2", "root/folder1/", new byte[] {}),
+        new DirElementDTO(DirElementType.FILE, "TestOwner", "myFile.jpg", "root/folder2/myFile.jpg", "root/folder2", new byte[] {}),
+        new DirElementDTO(DirElementType.FILE, "TestOwner", "myText.txt", "root/folder2/myText.txt", "root/folder2", new byte[] {})
+    };
+ // @formatter:on
+
+    return new HashSet<DirElementDTO>(Lists.newArrayList(arr));
+
+  }
+
 
 }

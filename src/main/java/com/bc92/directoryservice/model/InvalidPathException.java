@@ -1,6 +1,6 @@
 package com.bc92.directoryservice.model;
 
-import com.bc92.directoryservice.utilities.DirectoryServiceConstants;
+import com.bc92.projectsdk.constants.DirectoryServiceConstants;
 
 public class InvalidPathException extends RuntimeException {
 
