@@ -50,6 +50,31 @@ public class PathParser {
     }
   }
 
+  public static boolean pathsAreEqual(final String pathA, final String pathB) {
+    if (pathA == null || pathB == null) {
+      return false;
+    }
+    if (!(pathA.matches(DirectoryServiceConstants.FILE_PATH_REGEX)
+        && pathB.matches(DirectoryServiceConstants.FILE_PATH_REGEX))) {
+      return false;
+    }
+
+    String[] pathAarr = pathA.substring(1).split("/");
+    String[] pathBarr = pathB.substring(1).split("/");
+
+    if (pathAarr.length != pathBarr.length) {
+      return false;
+    }
+
+    for (int i = 0; i < pathAarr.length; i++) {
+      if (!(pathAarr[i].equals(pathBarr[i]))) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   public String getPrimitivePath() {
     return primitivePath;
   }

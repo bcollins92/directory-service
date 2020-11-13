@@ -2,7 +2,10 @@ package com.bc92.directoryservice.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.Test;
@@ -12,6 +15,17 @@ import com.bc92.directoryservice.dto.DirElementDTO.DirElementType;
 class DirectoryTest {
 
   Directory dir;
+
+  // @formatter:off
+  private final DirElementDTO[] arr = {
+      new DirElementDTO(DirElementType.FOLDER, "TestOwner", "folder1", "/root/folder1", "/root", null),
+      new DirElementDTO(DirElementType.FOLDER, "TestOwner", "folder2", "/root/folder2", "/root", null),
+      new DirElementDTO(DirElementType.FOLDER, "TestOwner", "folder1-1", "/root/folder1/folder1-1", "/root/folder1/", null),
+      new DirElementDTO(DirElementType.FOLDER, "TestOwner", "folder1-2", "/root/folder1/folder1-2", "/root/folder1/", null),
+      new DirElementDTO(DirElementType.FILE, "TestOwner", "myFile.jpg", "/root/folder2/myFile.jpg", "/root/folder2", new byte[] {}),
+      new DirElementDTO(DirElementType.FILE, "TestOwner", "myText.txt", "/root/folder2/myText.txt", "/root/folder2", new byte[] {})
+  };
+  // @formatter:on
 
   @Test
   void getFolder_validPath_ReturnFolder() {
@@ -26,7 +40,7 @@ class DirectoryTest {
     dir = this.getDirectory();
 
     assertThrows(InvalidPathException.class, () -> {
-      dir.getFolder("root/folder2/invalid");
+      dir.getFolder("root/invalid");
     });
   }
 
@@ -35,42 +49,23 @@ class DirectoryTest {
     dir = this.getDirectory();
 
     assertThrows(InvalidPathException.class, () -> {
-      dir.getFolder("root/folder2/folder3/tooLong");
+      dir.getFolder("root/folder2/tooLong");
     });
   }
 
-  @Test
-  void createFolder_validInput_Success() {
-    dir = this.getDirectory();
-
-    dir.createFolder("root/folder2/folder3/folder4");
-    DirectoryNode foundNode = dir.getFolder("root/folder2/folder3/folder4");
-
-    assertEquals("folder4", foundNode.getDiscriminator());
-  }
-
-  @Test
-  void createFolder_pathTooLong_throwError() {
-    dir = this.getDirectory();
-
-    dir.createFolder("root/folder2/folder3/folder4");
-    DirectoryNode foundNode = dir.getFolder("root/folder2/folder3/folder4");
-
-    assertEquals("folder4", foundNode.getDiscriminator());
-  }
 
   @Test
   void deleteFolder_validInput_Success() {
     dir = this.getDirectory();
 
-    DirectoryNode deletedNode = dir.deleteFolder("root/folder2");
+    DirectoryNode deletedNode = dir.deleteFolder("root/folder1");
 
-    assertEquals("folder2", deletedNode.getDiscriminator());
+    assertEquals("folder1", deletedNode.getDiscriminator());
     assertThrows(InvalidPathException.class, () -> {
-      dir.getFolder("root/folder2");
+      dir.getFolder("root/folder1");
     });
     assertThrows(InvalidPathException.class, () -> {
-      dir.getFolder("root/folder2/folder3");
+      dir.getFolder("root/folder1/folder1-1");
     });
 
   }
@@ -89,120 +84,55 @@ class DirectoryTest {
     dir = this.getDirectory();
 
     assertThrows(InvalidPathException.class, () -> {
-      dir.deleteFolder("root/folder2/folder3/folder4");
+      dir.deleteFolder("root/folder1/folder1-1/folder");
     });
   }
 
-  @Test
-  void updateFolder_validInput_Success() {
-    dir = this.getDirectory();
-
-    DirectoryNode updatedNode = dir.updateFolder("root/folder2", "myUpdate");
-    DirectoryNode searchUpdatedNode = dir.getFolder("root/myUpdate");
-
-    assertEquals("myUpdate", updatedNode.getDiscriminator());
-    assertEquals("myUpdate", searchUpdatedNode.getDiscriminator());
-    assertThrows(InvalidPathException.class, () -> {
-      dir.getFolder("root/folder2");
-    });
-  }
 
   @Test
-  void updateFolder_incorrectPath_throwError() {
-    dir = this.getDirectory();
+  void flatten_validElementsSet_matchesWithOriginalSet() {
 
-    InvalidPathException ex = assertThrows(InvalidPathException.class, () -> {
-      dir.updateFolder("root/folder3/folder3", "myUpdate");
-    });
+    Set<DirElementDTO> elements = this.getElementSet();
 
-    assertEquals(String.format(InvalidPathException.FOLDER_DOES_NOT_EXIST, "folder3",
-        "root/folder3/folder3"), ex.getMessage());
-  }
+    Directory dir = Directory.expand(elements);
 
-  @Test
-  void updateFolder_pathTooLong_throwError() {
-    dir = this.getDirectory();
+    Set<DirElementDTO> flattened = dir.flatten();
 
-    InvalidPathException ex = assertThrows(InvalidPathException.class, () -> {
-      dir.updateFolder("root/folder2/folder3/folder4", "myUpdate");
-    });
-
-    assertEquals(String.format(InvalidPathException.FOLDER_DOES_NOT_EXIST, "folder4",
-        "root/folder2/folder3/folder4"), ex.getMessage());
-
-  }
-
-  @Test
-  void toString_success() {
-    dir = this.getDirectory();
-
-    //@formatter:off
-    String expected = "{\r\n"
-        + "  \"discriminator\" : \"root\",\r\n"
-        + "  \"children\" : {\r\n"
-        + "    \"folder2\" : {\r\n"
-        + "      \"discriminator\" : \"folder2\",\r\n"
-        + "      \"children\" : {\r\n"
-        + "        \"folder3\" : {\r\n"
-        + "          \"discriminator\" : \"folder3\",\r\n"
-        + "          \"children\" : { },\r\n"
-        + "          \"files\" : { }\r\n"
-        + "        }\r\n"
-        + "      },\r\n"
-        + "      \"files\" : { }\r\n"
-        + "    },\r\n"
-        + "    \"folder1\" : {\r\n"
-        + "      \"discriminator\" : \"folder1\",\r\n"
-        + "      \"children\" : { },\r\n"
-        + "      \"files\" : { }\r\n"
-        + "    }\r\n"
-        + "  },\r\n"
-        + "  \"files\" : { }\r\n"
-        + "}";
-    //@formatter:on
-
-    assertEquals(expected, dir.toString());
-  }
+    assertEquals(elements, flattened,
+        "Creating directory and flattening should not change the data");
 
 
-  @Test
-  void of_validElementsSet_resutrsDirectoryTree() {
+    List<DirElementDTO> elementsList = Lists.newArrayList(elements);
+    List<DirElementDTO> flattenedList = Lists.newArrayList(flattened);
 
-    Directory dir = Directory.of(this.getElementSet());
+    Collections.sort(elementsList);
+    Collections.sort(flattenedList);
 
-    // do bunch of tests on dir
+    assertEquals(elementsList.size(), flattenedList.size(),
+        "Flattened and riginal Elements must be the same size");
 
-    System.out.println(dir.toString());
+    for (int i = 0; i < elementsList.size(); i++) {
+      assertEquals(elementsList.get(i).getDiscriminator(), flattenedList.get(i).getDiscriminator(),
+          "Discriminator must be equal");
+      assertEquals(elementsList.get(i).getFileBytes(), flattenedList.get(i).getFileBytes(),
+          "File bytes must be equal");
+      assertTrue(PathParser.pathsAreEqual(elementsList.get(i).getFullPath(),
+          flattenedList.get(i).getFullPath()), "Full path must be equal");
+      assertTrue(PathParser.pathsAreEqual(elementsList.get(i).getParentPath(),
+          flattenedList.get(i).getParentPath()), "Parent Path must be equal");
 
-
+    }
 
   }
 
 
   private Directory getDirectory() {
-    DirectoryNode root = new DirectoryNode("root");
-
-    root.addChild("folder1");
-    root.addChild("folder2").addChild("folder3");
-
-    return new Directory(root);
+    return Directory.expand(this.getElementSet());
   }
 
 
   private Set<DirElementDTO> getElementSet() {
- // @formatter:off
-    DirElementDTO[] arr = {
-        new DirElementDTO(DirElementType.FOLDER, "TestOwner", "folder1", "root/folder1", "root", new byte[] {}),
-        new DirElementDTO(DirElementType.FOLDER, "TestOwner", "folder2", "root/folder2", "root", new byte[] {}),
-        new DirElementDTO(DirElementType.FOLDER, "TestOwner", "folder1-1", "root/folder1/folder1-1", "root/folder1/", new byte[] {}),
-        new DirElementDTO(DirElementType.FOLDER, "TestOwner", "folder1-2", "root/folder1/folder1-2", "root/folder1/", new byte[] {}),
-        new DirElementDTO(DirElementType.FILE, "TestOwner", "myFile.jpg", "root/folder2/myFile.jpg", "root/folder2", new byte[] {}),
-        new DirElementDTO(DirElementType.FILE, "TestOwner", "myText.txt", "root/folder2/myText.txt", "root/folder2", new byte[] {})
-    };
- // @formatter:on
-
     return new HashSet<DirElementDTO>(Lists.newArrayList(arr));
-
   }
 
 

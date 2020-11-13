@@ -7,7 +7,7 @@ import org.springframework.data.solr.core.mapping.SolrDocument;
 import org.springframework.util.Assert;
 import com.bc92.directoryservice.model.DirectoryNode;
 import com.bc92.directoryservice.model.File;
-import lombok.AllArgsConstructor;
+import com.bc92.directoryservice.model.PathParser;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,7 +19,6 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-@AllArgsConstructor
 @SolrDocument(collection = "test1")
 public class DirElementDTO implements Comparable<DirElementDTO> {
 
@@ -53,7 +52,6 @@ public class DirElementDTO implements Comparable<DirElementDTO> {
     fullPath = file.getFullPath();
     parentPath = file.getParentPath();
     fileBytes = file.getFileBytes();
-    Assert.notNull(fileBytes, "filebytes must not be null");
     this.validate();
   }
 
@@ -67,11 +65,28 @@ public class DirElementDTO implements Comparable<DirElementDTO> {
     this.validate();
   }
 
+  public DirElementDTO(final DirElementType type, final String owner, final String discriminator,
+      final String fullPath, final String parentPath, final byte[] fileBytes) {
+    this.type = type;
+    this.owner = owner;
+    this.discriminator = discriminator;
+    this.fullPath = fullPath;
+    this.parentPath = parentPath;
+    this.fileBytes = fileBytes;
+    this.validate();
+  }
+
   private void validate() {
     Assert.hasText(owner, "owner must not be null or empty");
     Assert.hasText(discriminator, "discriminator must not be null or empty");
     Assert.hasText(fullPath, "fullPath must not be null or empty");
     Assert.hasText(parentPath, "parentPath must not be null or empty");
+    PathParser.validatePath(fullPath);
+    PathParser.validatePath(parentPath);
+
+    if (type == DirElementType.FILE) {
+      Assert.notNull(fileBytes, "filebytes must not be null");
+    }
   }
 
   /**

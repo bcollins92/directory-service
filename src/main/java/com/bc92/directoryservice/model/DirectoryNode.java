@@ -3,11 +3,11 @@ package com.bc92.directoryservice.model;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import org.springframework.util.Assert;
 import com.bc92.directoryservice.dto.DirElementDTO;
 import com.bc92.projectsdk.constants.DirectoryServiceConstants;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
@@ -18,7 +18,6 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-@NoArgsConstructor
 public class DirectoryNode {
 
   private String discriminator;
@@ -37,20 +36,20 @@ public class DirectoryNode {
   /**
    * Public constructor to be used for creating a child node, from a {@link #DirElementDTO}
    *
-   * Will throw a Runtime Exception if there is data inconsistency between provided parent node and
-   * DirElementDTO
+   * Will throw a IllegalArgumentException if there is data inconsistency between provided parent
+   * node and DirElementDTO
    *
-   * @param dirElementDto -
+   * @param dirElementDto - Dto of the directory element
    * @param parent
    */
   public DirectoryNode(final DirElementDTO dirElementDto, final DirectoryNode parent) {
-    discriminator = dirElementDto.getDiscriminator();
     this.parent = parent;
+    discriminator = dirElementDto.getDiscriminator();
     parentPath = parent.getFullPath();
     fullPath = parentPath + DirectoryServiceConstants.PATH_DELIMINATOR + discriminator;
 
-    // check that directory node and parent match up, exception otherwise - ensure data integrity
-    // this protects against reconstructing a directory with incorrect data
+    Assert.isTrue(PathParser.pathsAreEqual(dirElementDto.getParentPath(), parent.getFullPath()),
+        "Provided parent full path and element parent path must match for data integrity");
 
   }
 
@@ -70,11 +69,11 @@ public class DirectoryNode {
   /**
    * Public constructor to be used for creating the root node.
    *
-   * @param discriminator - the name of the root node
    */
-  public DirectoryNode(final String discriminator) {
-    this.discriminator = discriminator;
-    fullPath = discriminator;
+  public DirectoryNode() {
+    discriminator = DirectoryServiceConstants.ROOT_NODE_NAME;
+    fullPath =
+        DirectoryServiceConstants.PATH_DELIMINATOR + DirectoryServiceConstants.ROOT_NODE_NAME;
     parentPath = "";
   }
 
@@ -83,11 +82,6 @@ public class DirectoryNode {
     copy.setChildren(children);
     copy.setFiles(files);
     return copy;
-  }
-
-  public DirectoryNode addChild(final String discr) {
-    children.put(discr, new DirectoryNode(discr, this));
-    return children.get(discr);
   }
 
   public DirectoryNode addChild(final DirectoryNode node) {
@@ -126,17 +120,6 @@ public class DirectoryNode {
     return discriminator;
   }
 
-  // TODO: update to use parent path
-  public Set<String> recurseGetAllPaths(final Set<String> paths, final String rootPath) {
-
-    String thisPath = rootPath + DirectoryServiceConstants.PATH_DELIMINATOR + discriminator;
-
-    paths.add(thisPath);
-
-    children.forEach((disc, node) -> paths.addAll(node.recurseGetAllPaths(paths, thisPath)));
-
-    return paths;
-  }
 
   public Set<DirElementDTO> recurseFlatten(final Set<DirElementDTO> flattened, final String owner) {
 

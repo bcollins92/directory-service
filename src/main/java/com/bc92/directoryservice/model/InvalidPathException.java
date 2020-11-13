@@ -18,7 +18,7 @@ public class InvalidPathException extends RuntimeException {
       "The file \"%s\" provided did exist in directory path \"%s\", cannot be created";
 
   public static final String INVALID_CHARS =
-      "The path \"%s\" contained invalid characters, it must match the regular expression: "
+      "The path \"%s\" either did not start with a slash \"/\", or contained invalid characters; it must match the regular expression: "
           + DirectoryServiceConstants.FILE_PATH_REGEX;
 
   public InvalidPathException(final String message, final Object... args) {

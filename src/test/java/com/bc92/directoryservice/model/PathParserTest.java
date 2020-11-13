@@ -93,6 +93,30 @@ class PathParserTest {
     }
   }
 
+  @Test
+  void pathsAreEqual_equalInputs_returnTrue() {
+    assertTrue(PathParser.pathsAreEqual("/root/folderA/", "/root/folderA/"),
+        "Paths that are equal path strings must match");
+    assertTrue(PathParser.pathsAreEqual("/root/folderA/", "/root/folderA"),
+        "absence of trailing slash should still match");
+    assertTrue(PathParser.pathsAreEqual("/root/folderA", "/root/folderA/"),
+        "absence of trailing slash should still match");
+  }
+
+  @Test
+  void pathsAreEqual_unequalInputs_returnFalse() {
+    assertFalse(PathParser.pathsAreEqual("/root/folderA/", "/root/FolderA"),
+        "small difference folder names should matter");
+    assertFalse(PathParser.pathsAreEqual("/root/folderA/", "root/folderA/"),
+        "absence leading slash should matter");
+    assertFalse(PathParser.pathsAreEqual("root/folderA/", "/root/folderA/"),
+        "absence leading slash should matter");
+    assertFalse(PathParser.pathsAreEqual("root/folderA/", "root/folderA"),
+        "absence leading slash should matter");
+    assertFalse(PathParser.pathsAreEqual("root/fol;derA/", "root/fol;derA/"),
+        "An invalid path should return false");
+  }
+
 
 
 }
