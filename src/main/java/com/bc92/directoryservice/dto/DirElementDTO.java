@@ -1,14 +1,15 @@
 package com.bc92.directoryservice.dto;
 
-import java.util.Arrays;
-import org.springframework.data.annotation.Id;
+import java.nio.ByteBuffer;
 import org.springframework.data.solr.core.mapping.Indexed;
 import org.springframework.data.solr.core.mapping.SolrDocument;
 import org.springframework.util.Assert;
 import com.bc92.directoryservice.model.DirectoryNode;
 import com.bc92.directoryservice.model.File;
-import com.bc92.directoryservice.model.PathParser;
+import com.bc92.directoryservice.model.Path;
+import com.bc92.directoryservice.service.Folder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
@@ -19,6 +20,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@NoArgsConstructor
 @SolrDocument(collection = "test1")
 public class DirElementDTO implements Comparable<DirElementDTO> {
 
@@ -27,23 +29,25 @@ public class DirElementDTO implements Comparable<DirElementDTO> {
   }
 
   @Indexed(name = "type")
-  private final DirElementType type;
+  private DirElementType type;
 
   @Indexed(name = "owner")
-  private final String owner;
+  private String owner;
 
   @Indexed(name = "discriminator")
-  private final String discriminator;
+  private String discriminator;
 
-  @Id
   @Indexed(name = "fullPath")
-  private final String fullPath;
+  private String fullPath;
 
   @Indexed(name = "parentPath")
-  private final String parentPath;
+  private String parentPath;
 
   @Indexed(name = "fileBytes")
-  private final byte[] fileBytes;
+  private ByteBuffer fileBytes;
+
+  @Indexed(name = "id")
+  private String id;
 
   public DirElementDTO(final String owner, final File file) {
     type = DirElementType.FILE;
@@ -51,7 +55,7 @@ public class DirElementDTO implements Comparable<DirElementDTO> {
     discriminator = file.getDiscriminator();
     fullPath = file.getFullPath();
     parentPath = file.getParentPath();
-    fileBytes = file.getFileBytes();
+    fileBytes = ByteBuffer.wrap(file.getFileBytes());
     this.validate();
   }
 
@@ -61,9 +65,21 @@ public class DirElementDTO implements Comparable<DirElementDTO> {
     discriminator = node.getDiscriminator();
     fullPath = node.getFullPath();
     parentPath = node.getParentPath();
+    id = node.getId();
     fileBytes = null;
     this.validate();
   }
+
+  public DirElementDTO(final String owner, final Folder createFolder) {
+    type = DirElementType.FOLDER;
+    this.owner = owner;
+    discriminator = createFolder.getDiscriminator();
+    fullPath = createFolder.getFullPath();
+    parentPath = createFolder.getParentPath();
+    fileBytes = null;
+    this.validate();
+  }
+
 
   public DirElementDTO(final DirElementType type, final String owner, final String discriminator,
       final String fullPath, final String parentPath, final byte[] fileBytes) {
@@ -72,22 +88,24 @@ public class DirElementDTO implements Comparable<DirElementDTO> {
     this.discriminator = discriminator;
     this.fullPath = fullPath;
     this.parentPath = parentPath;
-    this.fileBytes = fileBytes;
+    this.fileBytes = fileBytes == null ? null : ByteBuffer.wrap(fileBytes);
     this.validate();
   }
 
-  private void validate() {
+  public void validate() {
     Assert.hasText(owner, "owner must not be null or empty");
     Assert.hasText(discriminator, "discriminator must not be null or empty");
     Assert.hasText(fullPath, "fullPath must not be null or empty");
     Assert.hasText(parentPath, "parentPath must not be null or empty");
-    PathParser.validatePath(fullPath);
-    PathParser.validatePath(parentPath);
+    Path.validatePath(fullPath);
+    Path.validatePath(parentPath);
+    Path.validateDiscriminator(discriminator);
 
     if (type == DirElementType.FILE) {
       Assert.notNull(fileBytes, "filebytes must not be null");
     }
   }
+
 
   /**
    * Compare length of path strings, shorter ones should turn up earlier in the sort. This is to
@@ -103,19 +121,19 @@ public class DirElementDTO implements Comparable<DirElementDTO> {
     if (!(obj instanceof DirElementDTO)) {
       return false;
     }
-    return fullPath.equals(((DirElementDTO) obj).getFullPath());
+    return fullPath.equals(((DirElementDTO) obj).getFullPath())
+        && owner.equals(((DirElementDTO) obj).getOwner());
   }
 
   @Override
   public int hashCode() {
-    return fullPath.hashCode();
+    return (owner + fullPath).hashCode();
   }
 
   @Override
   public String toString() {
     return "DirElementDTO [type=" + type + ", owner=" + owner + ", discriminator=" + discriminator
-        + ", fullPath=" + fullPath + ", parentPath=" + parentPath + ", fileBytes="
-        + Arrays.toString(fileBytes) + "]";
+        + ", fullPath=" + fullPath + ", parentPath=" + parentPath + "]";
   }
 
 

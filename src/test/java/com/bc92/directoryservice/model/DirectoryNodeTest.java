@@ -43,9 +43,9 @@ class DirectoryNodeTest {
 
     assertEquals(child.getDiscriminator(), dirElements[0].getDiscriminator(),
         "Discriminator must be equal");
-    assertTrue(PathParser.pathsAreEqual(child.getFullPath(), dirElements[0].getFullPath()),
+    assertTrue(Path.pathsAreEqual(child.getFullPath(), dirElements[0].getFullPath()),
         "Full path must be equal");
-    assertTrue(PathParser.pathsAreEqual(child.getParentPath(), dirElements[0].getParentPath()),
+    assertTrue(Path.pathsAreEqual(child.getParentPath(), dirElements[0].getParentPath()),
         "Parent Path must be equal");
 
   }

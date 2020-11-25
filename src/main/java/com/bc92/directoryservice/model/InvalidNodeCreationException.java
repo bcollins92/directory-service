@@ -7,6 +7,9 @@ public class InvalidNodeCreationException extends RuntimeException {
   public static final String ELEMENT_TYPE_UNKNOWN =
       "The Directory Element \"%s\" did not specify a type";
 
+  public static final String ELEMENT_WRONG_TYPE =
+      "The Directory Element \"%s\" specified the wrong type";
+
   public InvalidNodeCreationException(final String message, final Object... args) {
     super(String.format(message, args));
   }

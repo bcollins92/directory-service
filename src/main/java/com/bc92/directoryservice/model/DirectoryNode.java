@@ -26,6 +26,8 @@ public class DirectoryNode {
 
   private String parentPath;
 
+  private String id;
+
   @JsonIgnore
   private DirectoryNode parent;
 
@@ -44,11 +46,12 @@ public class DirectoryNode {
    */
   public DirectoryNode(final DirElementDTO dirElementDto, final DirectoryNode parent) {
     this.parent = parent;
+    id = dirElementDto.getId();
     discriminator = dirElementDto.getDiscriminator();
     parentPath = parent.getFullPath();
     fullPath = parentPath + DirectoryServiceConstants.PATH_DELIMINATOR + discriminator;
 
-    Assert.isTrue(PathParser.pathsAreEqual(dirElementDto.getParentPath(), parent.getFullPath()),
+    Assert.isTrue(Path.pathsAreEqual(dirElementDto.getParentPath(), parent.getFullPath()),
         "Provided parent full path and element parent path must match for data integrity");
 
   }
@@ -62,7 +65,7 @@ public class DirectoryNode {
   private DirectoryNode(final String discriminator, final DirectoryNode parent) {
     this.discriminator = discriminator;
     this.parent = parent;
-    parentPath = parent == null ? "" : parent.getFullPath();
+    parentPath = parent == null ? DirectoryServiceConstants.ROOT_PARENT_PATH : parent.getFullPath();
     fullPath = parentPath + DirectoryServiceConstants.PATH_DELIMINATOR + discriminator;
   }
 
@@ -74,9 +77,14 @@ public class DirectoryNode {
     discriminator = DirectoryServiceConstants.ROOT_NODE_NAME;
     fullPath =
         DirectoryServiceConstants.PATH_DELIMINATOR + DirectoryServiceConstants.ROOT_NODE_NAME;
-    parentPath = "";
+    parentPath = DirectoryServiceConstants.ROOT_PARENT_PATH;
   }
 
+  /**
+   * Shallow copy this node
+   *
+   * @return - shallow copy of this directory node
+   */
   public DirectoryNode copy() {
     DirectoryNode copy = new DirectoryNode(discriminator, parent);
     copy.setChildren(children);
@@ -89,8 +97,8 @@ public class DirectoryNode {
     return children.get(node.getDiscriminator());
   }
 
-  public void removeChild(final String discr) {
-    children.remove(discr);
+  public DirectoryNode removeChild(final String discr) {
+    return children.remove(discr);
   }
 
   public boolean containsChild(final String discr) {
@@ -120,6 +128,33 @@ public class DirectoryNode {
     return discriminator;
   }
 
+  public void updateDiscriminatorAndChildren(final String discriminator) {
+    if (DirectoryServiceConstants.ROOT_NODE_NAME.equals(this.discriminator)) {
+      throw new IllegalArgumentException("Cannot update discriminator of root node");
+    }
+
+    Path.validateDiscriminator(discriminator);
+
+    String oldDiscriminator = this.discriminator;
+    this.discriminator = discriminator;
+    this.getParent().getChildren().put(this.discriminator, this);
+    this.getParent().getChildren().remove(oldDiscriminator);
+    this.recurseUpdateParentPath();
+  }
+
+  private void recurseUpdateParentPath() {
+    this.setParentPath(this.getParent().getFullPath());
+
+    if (parentPath.charAt(parentPath.length() - 1) == '/') {
+      parentPath = parentPath.substring(0, parentPath.length() - 1);
+    }
+
+    fullPath = (parentPath + DirectoryServiceConstants.PATH_DELIMINATOR + discriminator);
+    Path.validatePath(fullPath);
+
+    children.forEach((disc, node) -> node.recurseUpdateParentPath());
+    files.forEach((disc, file) -> file.updateParentPath(this.getFullPath()));
+  }
 
   public Set<DirElementDTO> recurseFlatten(final Set<DirElementDTO> flattened, final String owner) {
 

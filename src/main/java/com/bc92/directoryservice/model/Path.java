@@ -1,5 +1,7 @@
 package com.bc92.directoryservice.model;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.bc92.projectsdk.constants.DirectoryServiceConstants;
 
 /**
@@ -8,19 +10,23 @@ import com.bc92.projectsdk.constants.DirectoryServiceConstants;
  * @author Brian
  *
  */
-public class PathParser {
+public class Path {
+  private static final Logger logger = LoggerFactory.getLogger(Path.class);
+
   private final String primitivePath;
   private PathNode root;
   private PathNode curr;
 
-  public PathParser(final String primitivePath) {
+  public Path(final String primitivePath) {
     this.primitivePath = primitivePath;
     validatePath(primitivePath);
     this.build(primitivePath);
   }
 
-  /*
-   * Build a linked list representing the path string
+  /**
+   * Build a iterable-style object from the provided path
+   *
+   * @param primitivePath
    */
   private void build(final String primitivePath) {
     String trimmedPath = primitivePath;
@@ -40,7 +46,14 @@ public class PathParser {
     curr = root;
   }
 
+  /**
+   * Validate the provided path. Throws InvalidPathException if the provided path is null/empty
+   * string or it contains invalid characters or format
+   *
+   * @param primitivePath - the provided path string
+   */
   public static void validatePath(final String primitivePath) {
+    logger.debug("Validating path: {}", primitivePath);
     if (primitivePath == null || primitivePath.isEmpty()) {
       throw new InvalidPathException(InvalidPathException.NULL_EMPTY_PATH);
     }
@@ -50,6 +63,31 @@ public class PathParser {
     }
   }
 
+  /**
+   * Validate the provided discriminator. Throws InvalidDiscriminatorException if the provided
+   * discriminator is null/empty string or it contains invalid characters or format
+   *
+   * @param discriminator - the discriminator string
+   */
+  public static void validateDiscriminator(final String discriminator) {
+    logger.debug("Validating discriminator: {}", discriminator);
+    if (discriminator == null || discriminator.isEmpty()) {
+      throw new InvalidDiscriminatorException(InvalidDiscriminatorException.NULL_EMPTY_PATH);
+    }
+
+    if (!discriminator.matches(DirectoryServiceConstants.DISCRIMINATOR_REGEX)) {
+      throw new InvalidDiscriminatorException(InvalidDiscriminatorException.INVALID_CHARS,
+          discriminator);
+    }
+  }
+
+  /**
+   * Checks if two provided paths are equal
+   *
+   * @param pathA - string of path
+   * @param pathB - string of path
+   * @return boolean
+   */
   public static boolean pathsAreEqual(final String pathA, final String pathB) {
     if (pathA == null || pathB == null) {
       return false;
@@ -99,5 +137,7 @@ public class PathParser {
   public PathNode current() {
     return curr;
   }
+
+
 
 }

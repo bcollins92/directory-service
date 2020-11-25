@@ -20,6 +20,8 @@ public class File {
 
   private byte[] fileBytes;
 
+  private String id;
+
   public File(final String discriminator, final byte[] fileBytes) {
     this.discriminator = discriminator;
     this.fileBytes = fileBytes;
@@ -29,11 +31,18 @@ public class File {
     discriminator = element.getDiscriminator();
     parentPath = parent.getFullPath();
     fullPath = parentPath + DirectoryServiceConstants.PATH_DELIMINATOR + discriminator;
-    fileBytes = element.getFileBytes();
+    fileBytes = element.getFileBytes().array();
+    id = element.getId();
 
     Assert.notNull(fileBytes, "filebytes must not be null");
     Assert.isTrue(element.getParentPath().equals(parent.getFullPath()),
         "Provided parent full path and element parent path must match for data integrity");
+  }
+
+  public void updateParentPath(final String newParentPath) {
+    Path.validatePath(newParentPath);
+    parentPath = newParentPath;
+    fullPath = parentPath + DirectoryServiceConstants.PATH_DELIMINATOR + discriminator;
   }
 
 }

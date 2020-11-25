@@ -12,7 +12,7 @@ public class InvalidPathException extends RuntimeException {
       "The folder \"%s\" provided did not exist in path \"%s\" ";
 
   public static final String FOLDER_ALREADY_EXISTS =
-      "The folder \"%s\" provided did exist in path \"%s\", cannot be created";
+      "The folder \"%s\" provided already exists in path \"%s\", cannot be created";
 
   public static final String FILE_ALREADY_EXISTS =
       "The file \"%s\" provided did exist in directory path \"%s\", cannot be created";

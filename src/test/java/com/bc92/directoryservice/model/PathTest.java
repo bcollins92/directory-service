@@ -7,9 +7,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 
-class PathParserTest {
+class PathTest {
 
-  PathParser parser;
+  Path parser;
 
   @Test
   void constructor_ValidPath_IterationSuccess() {
@@ -18,7 +18,7 @@ class PathParserTest {
     String[] pathArr = path.split("/");
 
 
-    parser = new PathParser(path);
+    parser = new Path(path);
 
     // start at index 1 because leading '/' gets trimmed by parser
     for (int i = 1; i < pathArr.length; i++) {
@@ -41,11 +41,11 @@ class PathParserTest {
   @Test
   void constructor_NullOrEmptyPath_Fail() {
     assertThrows(InvalidPathException.class, () -> {
-      new PathParser(null);
+      new Path(null);
     });
 
     assertThrows(InvalidPathException.class, () -> {
-      new PathParser("");
+      new Path("");
     });
   }
 
@@ -71,7 +71,7 @@ class PathParserTest {
 
     for (String path : paths) {
       assertThrows(InvalidPathException.class, () -> {
-        new PathParser(path);
+        new Path(path);
       });
     }
   }
@@ -87,7 +87,7 @@ class PathParserTest {
     String[] paths = new String[] {pathExmark, pathUnderscore, pathHyphen, pathsAt, pathPeriod};
 
     for (String path : paths) {
-      PathParser parser = new PathParser(path);
+      Path parser = new Path(path);
       assertEquals(path.split("/")[1], parser.current().getChild().getDiscriminator(),
           "Path and created discriminator must be the same");
     }
@@ -95,25 +95,25 @@ class PathParserTest {
 
   @Test
   void pathsAreEqual_equalInputs_returnTrue() {
-    assertTrue(PathParser.pathsAreEqual("/root/folderA/", "/root/folderA/"),
+    assertTrue(Path.pathsAreEqual("/root/folderA/", "/root/folderA/"),
         "Paths that are equal path strings must match");
-    assertTrue(PathParser.pathsAreEqual("/root/folderA/", "/root/folderA"),
+    assertTrue(Path.pathsAreEqual("/root/folderA/", "/root/folderA"),
         "absence of trailing slash should still match");
-    assertTrue(PathParser.pathsAreEqual("/root/folderA", "/root/folderA/"),
+    assertTrue(Path.pathsAreEqual("/root/folderA", "/root/folderA/"),
         "absence of trailing slash should still match");
   }
 
   @Test
   void pathsAreEqual_unequalInputs_returnFalse() {
-    assertFalse(PathParser.pathsAreEqual("/root/folderA/", "/root/FolderA"),
+    assertFalse(Path.pathsAreEqual("/root/folderA/", "/root/FolderA"),
         "small difference folder names should matter");
-    assertFalse(PathParser.pathsAreEqual("/root/folderA/", "root/folderA/"),
+    assertFalse(Path.pathsAreEqual("/root/folderA/", "root/folderA/"),
         "absence leading slash should matter");
-    assertFalse(PathParser.pathsAreEqual("root/folderA/", "/root/folderA/"),
+    assertFalse(Path.pathsAreEqual("root/folderA/", "/root/folderA/"),
         "absence leading slash should matter");
-    assertFalse(PathParser.pathsAreEqual("root/folderA/", "root/folderA"),
+    assertFalse(Path.pathsAreEqual("root/folderA/", "root/folderA"),
         "absence leading slash should matter");
-    assertFalse(PathParser.pathsAreEqual("root/fol;derA/", "root/fol;derA/"),
+    assertFalse(Path.pathsAreEqual("root/fol;derA/", "root/fol;derA/"),
         "An invalid path should return false");
   }
 
