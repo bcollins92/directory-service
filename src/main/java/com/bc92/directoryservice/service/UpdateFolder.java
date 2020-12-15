@@ -1,7 +1,6 @@
 package com.bc92.directoryservice.service;
 
 import com.bc92.directoryservice.model.Path;
-import com.bc92.projectsdk.constants.DirectoryServiceConstants;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,10 +22,7 @@ public class UpdateFolder {
 
   public String getNewFullPath() {
     this.validate();
-    if (newDiscriminator.charAt(0) == '/') {
-      newDiscriminator = newDiscriminator.substring(1);
-    }
-    return target.getParentPath() + DirectoryServiceConstants.PATH_DELIMINATOR + newDiscriminator;
+    return Path.combineParentPathAndDiscriminator(target.getParentPath(), newDiscriminator);
   }
 
 }

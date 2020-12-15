@@ -25,15 +25,14 @@ class DirectoryNodeTest {
   void copy_allowsClientToNavigateAnywhereInDir() {
     DirectoryNode root = this.getDirectoryTree();
 
-    DirectoryNode folder3Copy = root.getChild("folder2").getChild("folder3").copy();
+    DirectoryNode folder12Copy = root.getChild("folder1").getChild("folder1-2").copy();
 
-    assertEquals(root.getDiscriminator(), folder3Copy.getParent().getParent().getDiscriminator(),
+    assertEquals(root.getDiscriminator(), folder12Copy.getParent().getParent().getDiscriminator(),
         "User can access the Root node");
     assertEquals(root.getChild("folder1").getDiscriminator(),
-        folder3Copy.getParent().getParent().getChild("folder1").getDiscriminator(),
+        folder12Copy.getParent().getParent().getChild("folder1").getDiscriminator(),
         "User can traverse the tree, and access the copied node again");
   }
-
 
 
   @Test
@@ -64,9 +63,17 @@ class DirectoryNodeTest {
 
   }
 
-  @Test
-  void addFile_updatesFileCorrectly() {
 
+  @Test
+  void updateDiscriminatorAndChildren_nullOrEmptyDiscriminator_throwsException() {
+    DirectoryNode root = new DirectoryNode();
+
+    assertThrows(InvalidPathException.class, () -> {
+      root.updateDiscriminatorAndChildren("");
+    });
+    assertThrows(InvalidPathException.class, () -> {
+      root.updateDiscriminatorAndChildren(null);
+    });
   }
 
 
@@ -79,8 +86,8 @@ class DirectoryNodeTest {
     folder1.addChild(new DirectoryNode(dirElements[2], folder1));
     folder1.addChild(new DirectoryNode(dirElements[3], folder1));
 
-    folder2.addFile(new File(dirElements[4], folder2));
-    folder2.addFile(new File(dirElements[5], folder2));
+    folder2.addFile(new FileNode(dirElements[4], folder2));
+    folder2.addFile(new FileNode(dirElements[5], folder2));
 
     return root;
   }

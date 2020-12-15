@@ -91,11 +91,7 @@ public class Directory {
     if (element.getType() == DirElementType.FOLDER) {
       parent.addChild(new DirectoryNode(element, parent));
     } else if (element.getType() == DirElementType.FILE) {
-      parent.addFile(new File(element, parent));
-    } else {
-      logger.error("ElementType is not recognised, cannot add to directory tree");
-      throw new InvalidNodeCreationException(InvalidNodeCreationException.ELEMENT_TYPE_UNKNOWN,
-          element);
+      parent.addFile(new FileNode(element, parent));
     }
   }
 

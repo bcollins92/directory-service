@@ -1,37 +1,26 @@
 package com.bc92.directoryservice.service;
 
 import com.bc92.directoryservice.model.Path;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-public class Folder {
+public class File {
 
-  private String discriminator;
-  private String parentPath;
-
-  @Getter
-  @Setter(AccessLevel.NONE)
   private String fullPath;
+  private String parentPath;
+  private String discriminator;
+  private byte[] fileBytes;
 
-  public Folder(final String discriminator, final String parentPath) {
+  public File(final String parentPath, final String discriminator, final byte[] fileBytes) {
     this.discriminator = discriminator;
     this.parentPath = parentPath;
+    this.fileBytes = fileBytes;
+    this.validate();
   }
 
-
-  /**
-   * Builds and validates the full path from provided data, throws DirectoryServiceException if
-   * there is
-   */
   public void validate() {
-
     Path.validatePath(parentPath);
     Path.validateDiscriminator(discriminator);
     fullPath = Path.combineParentPathAndDiscriminator(parentPath, discriminator);

@@ -15,7 +15,6 @@ import com.bc92.directoryservice.dto.DirElementDTO.DirElementType;
 import com.bc92.directoryservice.service.Folder;
 import com.bc92.directoryservice.service.ReadFolder;
 import com.bc92.directoryservice.service.UpdateFolder;
-import com.bc92.projectsdk.utils.JsonUtilities;
 
 class DirectoryTest {
 
@@ -31,14 +30,6 @@ class DirectoryTest {
       new DirElementDTO(DirElementType.FILE, "TestOwner", "myText.txt", "/root/folder2/myText.txt", "/root/folder2", new byte[] {})
   };
   // @formatter:on
-
-  @Test
-  void blah() {
-    UpdateFolder folder = new UpdateFolder(new Folder("blah1", "/root"), "newdisc");
-
-    System.out.println(JsonUtilities.objectToPrettyJson(folder));
-
-  }
 
   @Test
   void createFolder_validFolder_addFolder() {
@@ -93,9 +84,9 @@ class DirectoryTest {
   @Test
   void getFolder_validPath_ReturnFolder() {
     dir = this.getDirectory();
-    DirectoryNode foundNode = dir.getFolder("/root/folder1/folder1-2");
+    DirectoryNode foundNode = dir.getFolder("/root/folder1/folder1-1");
 
-    assertEquals("folder1-2", foundNode.getDiscriminator());
+    assertEquals("folder1-1", foundNode.getDiscriminator());
   }
 
   @Test
@@ -173,11 +164,14 @@ class DirectoryTest {
   void recurseUpdateParentPath_updatesPathsCorrectly() {
     dir = this.getDirectory();
 
-    dir.getRoot().getChild("folder1").updateDiscriminatorAndChildren("updatedFolder");
+    dir.updateFolderDiscriminator(
+        new UpdateFolder(new Folder("folder1", "/root"), "updatedFolder"));
 
     DirectoryNode updated = dir.getRoot().getChild("updatedFolder");
 
     assertNotNull(updated, "updated should not be null");
+
+    assertEquals("/root/updatedFolder", updated.getFullPath(), "Full path should be updated");
 
     assertEquals("/root/updatedFolder", updated.getChild("folder1-1").getParentPath(),
         "Parent path of child folder must be updated");

@@ -33,7 +33,7 @@ public class DirectoryNode {
 
   private Map<String, DirectoryNode> children = new HashMap<>();
 
-  private Map<String, File> files = new HashMap<>();
+  private Map<String, FileNode> files = new HashMap<>();
 
   /**
    * Public constructor to be used for creating a child node, from a {@link #DirElementDTO}
@@ -109,18 +109,18 @@ public class DirectoryNode {
     return children.getOrDefault(discr, null);
   }
 
-  public File getFile(final String displayName) {
+  public FileNode getFile(final String displayName) {
     return files.getOrDefault(displayName, null);
   }
 
-  public File addFile(final File file) {
+  public FileNode addFile(final FileNode file) {
     file.setParentPath(fullPath);
     file.setFullPath(
         fullPath + DirectoryServiceConstants.PATH_DELIMINATOR + file.getDiscriminator());
     return files.put(file.getDiscriminator(), file);
   }
 
-  public File removeFile(final String discriminator) {
+  public FileNode removeFile(final String discriminator) {
     return files.remove(discriminator);
   }
 
@@ -130,7 +130,7 @@ public class DirectoryNode {
 
   public void updateDiscriminatorAndChildren(final String discriminator) {
     if (DirectoryServiceConstants.ROOT_NODE_NAME.equals(this.discriminator)) {
-      throw new IllegalArgumentException("Cannot update discriminator of root node");
+      throw new InvalidPathException(InvalidPathException.ROOT_NAME_IMMUTABLE);
     }
 
     Path.validateDiscriminator(discriminator);

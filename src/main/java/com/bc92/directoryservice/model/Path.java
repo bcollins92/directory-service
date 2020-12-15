@@ -113,6 +113,30 @@ public class Path {
     return true;
   }
 
+  /**
+   * Combine the provided parentPath and disciminator into one fullPath
+   *
+   * @param parentPath - string of the parent path
+   * @param discriminator - sub string of path that identifies the element in directory tree
+   * @return fullPath - full path
+   */
+  public static String combineParentPathAndDiscriminator(String parentPath, String discriminator) {
+
+    if (parentPath.charAt(parentPath.length() - 1) == '/') {
+      parentPath = parentPath.substring(0, parentPath.length() - 1);
+    }
+
+    if (discriminator.charAt(0) == '/') {
+      discriminator = discriminator.substring(1);
+    }
+
+    return (parentPath + DirectoryServiceConstants.PATH_DELIMINATOR + discriminator);
+  }
+
+  public static String escapeBackslashes(final String fullPath) {
+    return fullPath.replace("/", "\\/");
+  }
+
   public String getPrimitivePath() {
     return primitivePath;
   }

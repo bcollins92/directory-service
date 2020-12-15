@@ -21,6 +21,8 @@ public class InvalidPathException extends RuntimeException {
       "The path \"%s\" either did not start with a slash \"/\", or contained invalid characters; it must match the regular expression: "
           + DirectoryServiceConstants.FILE_PATH_REGEX;
 
+  public static final String ROOT_NAME_IMMUTABLE = "Cannot update discriminator of root node";
+
   public InvalidPathException(final String message, final Object... args) {
     super(String.format(message, args));
   }

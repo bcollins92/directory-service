@@ -14,7 +14,4 @@ public class InvalidNodeCreationException extends RuntimeException {
     super(String.format(message, args));
   }
 
-  public InvalidNodeCreationException(final String message) {
-    super(message);
-  }
 }

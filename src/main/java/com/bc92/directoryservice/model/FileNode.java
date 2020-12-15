@@ -3,6 +3,7 @@ package com.bc92.directoryservice.model;
 import org.springframework.util.Assert;
 import com.bc92.directoryservice.dto.DirElementDTO;
 import com.bc92.projectsdk.constants.DirectoryServiceConstants;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,7 +11,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class File {
+public class FileNode {
 
   private String discriminator;
 
@@ -18,19 +19,20 @@ public class File {
 
   private String parentPath;
 
+  @JsonIgnore
   private byte[] fileBytes;
 
   private String id;
 
-  public File(final String discriminator, final byte[] fileBytes) {
+  public FileNode(final String discriminator, final byte[] fileBytes) {
     this.discriminator = discriminator;
     this.fileBytes = fileBytes;
   }
 
-  public File(final DirElementDTO element, final DirectoryNode parent) {
+  public FileNode(final DirElementDTO element, final DirectoryNode parent) {
     discriminator = element.getDiscriminator();
     parentPath = parent.getFullPath();
-    fullPath = parentPath + DirectoryServiceConstants.PATH_DELIMINATOR + discriminator;
+    fullPath = Path.combineParentPathAndDiscriminator(parentPath, discriminator);
     fileBytes = element.getFileBytes().array();
     id = element.getId();
 

@@ -5,8 +5,9 @@ import org.springframework.data.solr.core.mapping.Indexed;
 import org.springframework.data.solr.core.mapping.SolrDocument;
 import org.springframework.util.Assert;
 import com.bc92.directoryservice.model.DirectoryNode;
-import com.bc92.directoryservice.model.File;
+import com.bc92.directoryservice.model.FileNode;
 import com.bc92.directoryservice.model.Path;
+import com.bc92.directoryservice.service.File;
 import com.bc92.directoryservice.service.Folder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -48,6 +49,16 @@ public class DirElementDTO implements Comparable<DirElementDTO> {
 
   @Indexed(name = "id")
   private String id;
+
+  public DirElementDTO(final String owner, final FileNode file) {
+    type = DirElementType.FILE;
+    this.owner = owner;
+    discriminator = file.getDiscriminator();
+    fullPath = file.getFullPath();
+    parentPath = file.getParentPath();
+    fileBytes = ByteBuffer.wrap(file.getFileBytes());
+    this.validate();
+  }
 
   public DirElementDTO(final String owner, final File file) {
     type = DirElementType.FILE;
