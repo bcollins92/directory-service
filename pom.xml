@@ -16,7 +16,8 @@
 	<description>service for managing directories</description>
 
 	<properties>
-		<java.version>11</java.version>
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<maven.compiler.source>1.8</maven.compiler.source>
 	</properties>
 
 	<dependencies>
@@ -87,5 +88,14 @@
 			</plugin>
 		</plugins>
 	</build>
+	
+	
+	<distributionManagement>
+		<repository>
+			<id>github</id>
+			<name>GitHub Apache Maven Packages</name>
+			<url>https://maven.pkg.github.com/bcollins92/artefacts</url>
+		</repository>
+	</distributionManagement>
 
 </project>
