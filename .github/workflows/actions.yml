@@ -7,9 +7,9 @@ on:
     branches: [ main ]
 
 jobs:
-  integration-test:
+  tests:
 
-    runs-on: windows-2019
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2
@@ -26,18 +26,4 @@ jobs:
         servers: '[{ "id": "github", "username": "bcollins", "password": "${{ secrets.GITHUB_TOKEN }}" }]'
       
     - name: Run tests with Maven
-      run: mvn -B verify
-  
-  code-quality:
-    runs-on: ubuntu-20.04
-    
-    steps:
-    - name: SonarCloud Scan
-      uses: SonarSource/sonarcloud-github-action@v1.4
-      with:
-        args: >
-          -Dsonar.organization=bcollins92
-          -Dsonar.projectKey=bcollins92_directory-service
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      run: mvn clean install sonar:sonar -Dsonar.login=${{ secrets.SONAR_TOKEN }}
