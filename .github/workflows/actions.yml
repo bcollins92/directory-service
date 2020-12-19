@@ -25,7 +25,7 @@ jobs:
         repositories: '[{ "id": "central", "url": "https://repo1.maven.org/maven2", "releases": { "enabled": "true" }, "snapshots": { "enabled": "true" } },{ "id": "github", "url": "https://maven.pkg.github.com/bcollins92/artefacts"}]'
         servers: '[{ "id": "github", "username": "bcollins", "password": "${{ secrets.GITHUB_TOKEN }}" }]'
         profiles: '[{ "id": "sonar", "activation":{ "activeByDefault" : "true" }, "properties": {"sonar.host.url" : "https://sonarcloud.io" }}]'
-        plugin_groups: '[{ "pluginGroup" : "org.sonarsource.scanner.maven" }]'
+        # plugin_groups: '[{ "pluginGroup" : "org.sonarsource.scanner.maven" }]'
       
     - name: Run tests with Maven
       env:
