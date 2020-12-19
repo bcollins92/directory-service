@@ -22,6 +22,10 @@ public class DirectoryService {
 
   private static final Logger logger = LoggerFactory.getLogger(DirectoryService.class);
 
+  private static final String FILE_NOT_FOUND = "File not found";
+
+  private static final String FILE_CONFLICT = "File already exists";
+
   private final DirectoryRepository directoryRepo;
 
 
@@ -89,56 +93,64 @@ public class DirectoryService {
   }
 
   public Resource readFile(final String fullPath, final String username) {
+    logger.trace(">> readFile()");
     DirElementDTO fileElement = this.getFile(fullPath, username);
 
     if (fileElement == null) {
-      logger.error("File not found");
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "File not found");
+      logger.error(FILE_NOT_FOUND);
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, FILE_NOT_FOUND);
     }
 
+    logger.trace("<< readFile()");
     return new ByteArrayResource(fileElement.getFileBytes().array());
   }
 
   public ReadFile uploadFile(final File file, final String username) {
+    logger.trace(">> uploadFile()");
     file.validate();
     if (this.getFile(file.getFullPath(), username) != null) {
-      logger.error("File already exists");
-      throw new ResponseStatusException(HttpStatus.CONFLICT, "File already exists");
+      logger.error(FILE_CONFLICT);
+      throw new ResponseStatusException(HttpStatus.CONFLICT, FILE_CONFLICT);
     }
 
     Directory dir = this.getUserDirectory(username);
     dir.addDirectoryElement(new DirElementDTO(username, file));
     directoryRepo.saveAll(dir.flatten());
 
+    logger.trace("<< uploadFile()");
     return new ReadFile(file.getFullPath(), file.getDiscriminator());
   }
 
   public ReadFile deleteFile(final String fullPath, final String username) {
+    logger.trace(">> deleteFile()");
     DirElementDTO fileElement = this.getFile(fullPath, username);
 
     if (fileElement == null) {
-      logger.error("File not found");
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "File not found");
+      logger.error(FILE_NOT_FOUND);
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, FILE_NOT_FOUND);
     }
 
     directoryRepo.delete(fileElement);
 
+    logger.trace("<< deleteFile()");
     return new ReadFile(fileElement.getParentPath(), fileElement.getDiscriminator());
   }
 
   public ReadFile updateFile(final File file, final String username) {
+    logger.trace(">> updateFile()");
     file.validate();
     DirElementDTO fileElement = this.getFile(file.getFullPath(), username);
 
     if (fileElement == null) {
-      logger.error("File not found");
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "File not found");
+      logger.error(FILE_NOT_FOUND);
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, FILE_NOT_FOUND);
     }
 
     fileElement.setFileBytes(ByteBuffer.wrap(file.getFileBytes()));
     fileElement.validate();
     directoryRepo.save(fileElement);
 
+    logger.trace("<< updateFile()");
     return new ReadFile(file.getFullPath(), file.getDiscriminator());
   }
 
