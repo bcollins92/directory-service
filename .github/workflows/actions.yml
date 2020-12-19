@@ -29,4 +29,4 @@ jobs:
     - name: Run tests with Maven
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: mvn -B verify sonar:sonar -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+      run: mvn -B verify sonar:sonar -Dsonar.login=${{ secrets.SONAR_TOKEN }} -Dsonar.coverage.jacoco.xmlReportPaths="./target/site/jacoco"
