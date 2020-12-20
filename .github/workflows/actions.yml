@@ -1,4 +1,4 @@
-name: Java CI with Maven
+name: directory-service actions
 
 on:
   push:
@@ -24,6 +24,9 @@ jobs:
       with:
         repositories: '[{ "id": "central", "url": "https://repo1.maven.org/maven2", "releases": { "enabled": "true" }, "snapshots": { "enabled": "true" } },{ "id": "github", "url": "https://maven.pkg.github.com/bcollins92/artefacts"}]'
         servers: '[{ "id": "github", "username": "bcollins", "password": "${{ secrets.GITHUB_TOKEN }}" }]'
+        profiles: '[{ "id": "sonar", "activation":{ "activeByDefault" : "true" }, "properties": {"sonar.host.url" : "https://sonarcloud.io" }}]'
       
     - name: Run tests with Maven
-      run: mvn clean install sonar:sonar -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: mvn -B verify sonar:sonar -Dsonar.login=${{ secrets.SONAR_TOKEN }} -Dsonar.coverage.jacoco.xmlReportPaths="./target/site/jacoco"
