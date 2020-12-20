@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
-import com.bc92.directoryservice.service.DirectoryService;
 import com.bc92.directoryservice.service.File;
+import com.bc92.directoryservice.service.FileService;
 import com.bc92.directoryservice.service.ReadFile;
 import com.bc92.projectsdk.constants.DirectoryServiceConstants;
 import lombok.AllArgsConstructor;
@@ -27,7 +27,7 @@ public class FileController {
 
   private static final Logger logger = LoggerFactory.getLogger(FileController.class);
 
-  private final DirectoryService directoryService;
+  private final FileService fileService;
 
 
   @PostMapping(path = DirectoryServiceConstants.FILE_API_PATH, consumes = {"multipart/form-data"})
@@ -36,7 +36,7 @@ public class FileController {
       @RequestParam final String parentPath, final Authentication auth) {
     logger.trace(">><< uploadFile()");
     try {
-      return directoryService.uploadFile(
+      return fileService.uploadFile(
           new File(parentPath, file.getOriginalFilename(), file.getBytes()), auth.getName());
     } catch (IOException e) {
       logger.error("File upload encountered IO Error", e);
@@ -49,7 +49,7 @@ public class FileController {
   @ResponseBody
   public Resource readFile(@RequestParam final String fullPath, final Authentication auth) {
     logger.trace(">><< readFile()");
-    return directoryService.readFile(fullPath, auth.getName());
+    return fileService.readFile(fullPath, auth.getName());
   }
 
   @PutMapping(DirectoryServiceConstants.FILE_API_PATH)
@@ -58,7 +58,7 @@ public class FileController {
       final Authentication auth) {
     logger.trace(">><< updateFolder()");
     try {
-      return directoryService.updateFile(
+      return fileService.updateFile(
           new File(parentPath, file.getOriginalFilename(), file.getBytes()), auth.getName());
     } catch (IOException e) {
       logger.error("File update encountered IO Error", e);
@@ -71,7 +71,7 @@ public class FileController {
   @ResponseBody
   public ReadFile deleteFile(@RequestParam final String fullPath, final Authentication auth) {
     logger.trace(">><< deleteFolder()");
-    return directoryService.deleteFile(fullPath, auth.getName());
+    return fileService.deleteFile(fullPath, auth.getName());
   }
 
 }

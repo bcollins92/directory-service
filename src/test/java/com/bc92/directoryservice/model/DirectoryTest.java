@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.Set;
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.Test;
-import com.bc92.directoryservice.dto.DirElementDTO;
-import com.bc92.directoryservice.dto.DirElementDTO.DirElementType;
+import com.bc92.directoryservice.dto.NodeDTO;
+import com.bc92.directoryservice.dto.NodeDTO.DirElementType;
 import com.bc92.directoryservice.service.Folder;
 import com.bc92.directoryservice.service.ReadFolder;
 import com.bc92.directoryservice.service.UpdateFolder;
@@ -21,13 +21,13 @@ class DirectoryTest {
   Directory dir;
 
   // @formatter:off
-  private final DirElementDTO[] arr = {
-      new DirElementDTO(DirElementType.FOLDER, "TestOwner", "folder1", "/root/folder1", "/root", null),
-      new DirElementDTO(DirElementType.FOLDER, "TestOwner", "folder2", "/root/folder2", "/root", null),
-      new DirElementDTO(DirElementType.FOLDER, "TestOwner", "folder1-1", "/root/folder1/folder1-1", "/root/folder1/", null),
-      new DirElementDTO(DirElementType.FOLDER, "TestOwner", "folder2-2", "/root/folder2/folder2-2", "/root/folder2/", null),
-      new DirElementDTO(DirElementType.FILE, "TestOwner", "myFile.jpg", "/root/folder1/myFile.jpg", "/root/folder1", new byte[] {}),
-      new DirElementDTO(DirElementType.FILE, "TestOwner", "myText.txt", "/root/folder2/myText.txt", "/root/folder2", new byte[] {})
+  private final NodeDTO[] arr = {
+      new NodeDTO(DirElementType.FOLDER, "TestOwner", "folder1", "/root/folder1", "/root"),
+      new NodeDTO(DirElementType.FOLDER, "TestOwner", "folder2", "/root/folder2", "/root"),
+      new NodeDTO(DirElementType.FOLDER, "TestOwner", "folder1-1", "/root/folder1/folder1-1", "/root/folder1/"),
+      new NodeDTO(DirElementType.FOLDER, "TestOwner", "folder2-2", "/root/folder2/folder2-2", "/root/folder2/"),
+      new NodeDTO(DirElementType.FILE, "TestOwner", "myFile.jpg", "/root/folder1/myFile.jpg", "/root/folder1"),
+      new NodeDTO(DirElementType.FILE, "TestOwner", "myText.txt", "/root/folder2/myText.txt", "/root/folder2")
   };
   // @formatter:on
 
@@ -74,9 +74,9 @@ class DirectoryTest {
 
   @Test
   void getSubDirectory_returnsCorrectElements() {
-    Set<DirElementDTO> elements = this.getDirectory().getSubDirectory("/root/folder1");
+    Set<NodeDTO> elements = this.getDirectory().getSubDirectory("/root/folder1");
 
-    Set<DirElementDTO> predictedResults = new HashSet<>(Lists.newArrayList(arr[0], arr[2], arr[4]));
+    Set<NodeDTO> predictedResults = new HashSet<>(Lists.newArrayList(arr[0], arr[2], arr[4]));
 
     assertEquals(predictedResults, elements, "Elements should equal predicted results");
   }
@@ -126,18 +126,18 @@ class DirectoryTest {
   @Test
   void flatten_validElementsSet_matchesWithOriginalSet() {
 
-    Set<DirElementDTO> elements = this.getElementSet();
+    Set<NodeDTO> elements = this.getElementSet();
 
     Directory dir = Directory.expand(elements, "TestOwner");
 
-    Set<DirElementDTO> flattened = dir.flatten();
+    Set<NodeDTO> flattened = dir.flatten();
 
     assertEquals(elements, flattened,
         "Creating directory and flattening should not change the data");
 
 
-    List<DirElementDTO> elementsList = Lists.newArrayList(elements);
-    List<DirElementDTO> flattenedList = Lists.newArrayList(flattened);
+    List<NodeDTO> elementsList = Lists.newArrayList(elements);
+    List<NodeDTO> flattenedList = Lists.newArrayList(flattened);
 
     Collections.sort(elementsList);
     Collections.sort(flattenedList);
@@ -148,8 +148,6 @@ class DirectoryTest {
     for (int i = 0; i < elementsList.size(); i++) {
       assertEquals(elementsList.get(i).getDiscriminator(), flattenedList.get(i).getDiscriminator(),
           "Discriminator must be equal");
-      assertEquals(elementsList.get(i).getFileBytes(), flattenedList.get(i).getFileBytes(),
-          "File bytes must be equal");
       assertTrue(
           Path.pathsAreEqual(elementsList.get(i).getFullPath(), flattenedList.get(i).getFullPath()),
           "Full path must be equal");
@@ -191,8 +189,8 @@ class DirectoryTest {
   }
 
 
-  private Set<DirElementDTO> getElementSet() {
-    return new HashSet<DirElementDTO>(Lists.newArrayList(arr));
+  private Set<NodeDTO> getElementSet() {
+    return new HashSet<NodeDTO>(Lists.newArrayList(arr));
   }
 
 

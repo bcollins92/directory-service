@@ -4,19 +4,19 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
-import com.bc92.directoryservice.dto.DirElementDTO;
-import com.bc92.directoryservice.dto.DirElementDTO.DirElementType;
+import com.bc92.directoryservice.dto.NodeDTO;
+import com.bc92.directoryservice.dto.NodeDTO.DirElementType;
 
 class DirectoryNodeTest {
 
   // @formatter:off
-  private final DirElementDTO[] dirElements = {
-      new DirElementDTO(DirElementType.FOLDER, "TestOwner", "folder1", "/root/folder1", "/root", new byte[] {}),
-      new DirElementDTO(DirElementType.FOLDER, "TestOwner", "folder2", "/root/folder2", "/root", new byte[] {}),
-      new DirElementDTO(DirElementType.FOLDER, "TestOwner", "folder1-1", "/root/folder1/folder1-1", "/root/folder1/", new byte[] {}),
-      new DirElementDTO(DirElementType.FOLDER, "TestOwner", "folder1-2", "/root/folder1/folder1-2", "/root/folder1/", new byte[] {}),
-      new DirElementDTO(DirElementType.FILE, "TestOwner", "myFile.jpg", "/root/folder2/myFile.jpg", "/root/folder2", new byte[] {}),
-      new DirElementDTO(DirElementType.FILE, "TestOwner", "myText.txt", "/root/folder2/myText.txt", "/root/folder2", new byte[] {})
+  private final NodeDTO[] dirElements = {
+      new NodeDTO(DirElementType.FOLDER, "TestOwner", "folder1", "/root/folder1", "/root"),
+      new NodeDTO(DirElementType.FOLDER, "TestOwner", "folder2", "/root/folder2", "/root"),
+      new NodeDTO(DirElementType.FOLDER, "TestOwner", "folder1-1", "/root/folder1/folder1-1", "/root/folder1/"),
+      new NodeDTO(DirElementType.FOLDER, "TestOwner", "folder1-2", "/root/folder1/folder1-2", "/root/folder1/"),
+      new NodeDTO(DirElementType.FILE, "TestOwner", "myFile.jpg", "/root/folder2/myFile.jpg", "/root/folder2"),
+      new NodeDTO(DirElementType.FILE, "TestOwner", "myText.txt", "/root/folder2/myText.txt", "/root/folder2")
   };
   // @formatter:on
 
@@ -54,8 +54,8 @@ class DirectoryNodeTest {
     DirectoryNode root = new DirectoryNode();
     DirectoryNode folder1 = root.addChild(new DirectoryNode(dirElements[0], root));
 
-    DirElementDTO inconsistantDto = new DirElementDTO(DirElementType.FOLDER, "TestOwner",
-        "folder1-1", "/root/folder1/folder1-1", "/root/folder-invalid/", null);
+    NodeDTO inconsistantDto = new NodeDTO(DirElementType.FOLDER, "TestOwner",
+        "folder1-1", "/root/folder1/folder1-1", "/root/folder-invalid/");
 
     assertThrows(IllegalArgumentException.class, () -> {
       new DirectoryNode(inconsistantDto, folder1);

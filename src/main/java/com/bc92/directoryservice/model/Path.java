@@ -133,7 +133,7 @@ public class Path {
     return (parentPath + DirectoryServiceConstants.PATH_DELIMINATOR + discriminator);
   }
 
-  public static String escapeBackslashes(final String fullPath) {
+  public static String escapeSlashes(final String fullPath) {
     return fullPath.replace("/", "\\/");
   }
 

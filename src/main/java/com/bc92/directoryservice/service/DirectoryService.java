@@ -1,18 +1,12 @@
 package com.bc92.directoryservice.service;
 
-import java.nio.ByteBuffer;
 import java.util.HashSet;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import org.springframework.web.server.ResponseStatusException;
-import com.bc92.directoryservice.dto.DirElementDTO;
+import com.bc92.directoryservice.dto.NodeDTO;
 import com.bc92.directoryservice.model.Directory;
-import com.bc92.directoryservice.model.Path;
 import com.bc92.directoryservice.repo.DirectoryRepository;
 import lombok.AllArgsConstructor;
 
@@ -22,12 +16,7 @@ public class DirectoryService {
 
   private static final Logger logger = LoggerFactory.getLogger(DirectoryService.class);
 
-  private static final String FILE_NOT_FOUND = "File not found";
-
-  private static final String FILE_CONFLICT = "File already exists";
-
   private final DirectoryRepository directoryRepo;
-
 
   /**
    * Returns the directory of the provided username
@@ -44,12 +33,6 @@ public class DirectoryService {
       throw new DirectoryAccessException("Failed to expand directory for provided username");
     }
   }
-
-  public DirElementDTO getFile(final String fullPath, final String username) {
-    Path.validatePath(fullPath);
-    return directoryRepo.findFileByFullPathAndOwner(username, Path.escapeBackslashes(fullPath));
-  }
-
 
   public ReadFolder createFolder(final Folder createFolder, final String username) {
     logger.trace(">> createFolder()");
@@ -84,76 +67,12 @@ public class DirectoryService {
     logger.trace(">> deleteFolder()");
 
     Directory dir = this.getUserDirectory(username);
-    Set<DirElementDTO> toBeDeleted = dir.getSubDirectory(deleteFolder);
+    Set<NodeDTO> toBeDeleted = dir.getSubDirectory(deleteFolder);
     ReadFolder deletedFolder = dir.deleteParentAndAllChildren(deleteFolder);
     directoryRepo.deleteAll(toBeDeleted);
 
     logger.trace("<< deleteFolder()");
     return deletedFolder;
   }
-
-  public Resource readFile(final String fullPath, final String username) {
-    logger.trace(">> readFile()");
-    DirElementDTO fileElement = this.getFile(fullPath, username);
-
-    if (fileElement == null) {
-      logger.error(FILE_NOT_FOUND);
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, FILE_NOT_FOUND);
-    }
-
-    logger.trace("<< readFile()");
-    return new ByteArrayResource(fileElement.getFileBytes().array());
-  }
-
-  public ReadFile uploadFile(final File file, final String username) {
-    logger.trace(">> uploadFile()");
-    file.validate();
-    if (this.getFile(file.getFullPath(), username) != null) {
-      logger.error(FILE_CONFLICT);
-      throw new ResponseStatusException(HttpStatus.CONFLICT, FILE_CONFLICT);
-    }
-
-    Directory dir = this.getUserDirectory(username);
-    dir.addDirectoryElement(new DirElementDTO(username, file));
-    directoryRepo.saveAll(dir.flatten());
-
-    logger.trace("<< uploadFile()");
-    return new ReadFile(file.getFullPath(), file.getDiscriminator());
-  }
-
-  public ReadFile deleteFile(final String fullPath, final String username) {
-    logger.trace(">> deleteFile()");
-    DirElementDTO fileElement = this.getFile(fullPath, username);
-
-    if (fileElement == null) {
-      logger.error(FILE_NOT_FOUND);
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, FILE_NOT_FOUND);
-    }
-
-    directoryRepo.delete(fileElement);
-
-    logger.trace("<< deleteFile()");
-    return new ReadFile(fileElement.getParentPath(), fileElement.getDiscriminator());
-  }
-
-  public ReadFile updateFile(final File file, final String username) {
-    logger.trace(">> updateFile()");
-    file.validate();
-    DirElementDTO fileElement = this.getFile(file.getFullPath(), username);
-
-    if (fileElement == null) {
-      logger.error(FILE_NOT_FOUND);
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, FILE_NOT_FOUND);
-    }
-
-    fileElement.setFileBytes(ByteBuffer.wrap(file.getFileBytes()));
-    fileElement.validate();
-    directoryRepo.save(fileElement);
-
-    logger.trace("<< updateFile()");
-    return new ReadFile(file.getFullPath(), file.getDiscriminator());
-  }
-
-
 
 }

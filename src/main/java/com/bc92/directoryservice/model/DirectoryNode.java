@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import org.springframework.util.Assert;
-import com.bc92.directoryservice.dto.DirElementDTO;
+import com.bc92.directoryservice.dto.NodeDTO;
 import com.bc92.projectsdk.constants.DirectoryServiceConstants;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
@@ -44,7 +44,7 @@ public class DirectoryNode {
    * @param dirElementDto - Dto of the directory element
    * @param parent
    */
-  public DirectoryNode(final DirElementDTO dirElementDto, final DirectoryNode parent) {
+  public DirectoryNode(final NodeDTO dirElementDto, final DirectoryNode parent) {
     this.parent = parent;
     id = dirElementDto.getId();
     discriminator = dirElementDto.getDiscriminator();
@@ -156,15 +156,15 @@ public class DirectoryNode {
     files.forEach((disc, file) -> file.updateParentPath(this.getFullPath()));
   }
 
-  public Set<DirElementDTO> recurseFlatten(final Set<DirElementDTO> flattened, final String owner) {
+  public Set<NodeDTO> recurseFlatten(final Set<NodeDTO> flattened, final String owner) {
 
     if (!DirectoryServiceConstants.ROOT_NODE_NAME.equals(discriminator)) {
-      flattened.add(new DirElementDTO(owner, this));
+      flattened.add(new NodeDTO(owner, this));
     }
 
     children.forEach((disc, node) -> flattened.addAll(node.recurseFlatten(flattened, owner)));
 
-    files.forEach((disc, file) -> flattened.add(new DirElementDTO(owner, file)));
+    files.forEach((disc, file) -> flattened.add(new NodeDTO(owner, file)));
 
     return flattened;
   }

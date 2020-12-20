@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.bc92.directoryservice.dto.DirElementDTO;
-import com.bc92.directoryservice.dto.DirElementDTO.DirElementType;
+import com.bc92.directoryservice.dto.NodeDTO;
+import com.bc92.directoryservice.dto.NodeDTO.DirElementType;
 import com.bc92.directoryservice.service.Folder;
 import com.bc92.directoryservice.service.ReadFolder;
 import com.bc92.directoryservice.service.UpdateFolder;
@@ -53,16 +53,16 @@ public class Directory {
    * @param owner - string of the username of the owner of this directory
    * @return Directory - new Directory object
    */
-  public static Directory expand(final Set<DirElementDTO> elementsSet, final String owner) {
+  public static Directory expand(final Set<NodeDTO> elementsSet, final String owner) {
     logger.debug("Expanding directory with the following elements {} for user: {}", elementsSet,
         owner);
 
-    List<DirElementDTO> elements = new ArrayList<>(elementsSet);
+    List<NodeDTO> elements = new ArrayList<>(elementsSet);
     Collections.sort(elements);
 
     Directory newDir = new Directory(owner);
 
-    for (DirElementDTO element : elements) {
+    for (NodeDTO element : elements) {
       newDir.addDirectoryElement(element);
     }
 
@@ -74,7 +74,7 @@ public class Directory {
    *
    * @return Set<DirElementDTO> - set of elements representing the flattened directory tree
    */
-  public Set<DirElementDTO> flatten() {
+  public Set<NodeDTO> flatten() {
     return root.recurseFlatten(new HashSet<>(), owner);
   }
 
@@ -84,7 +84,7 @@ public class Directory {
    *
    * @param element - a DirElementDTO
    */
-  public void addDirectoryElement(final DirElementDTO element) {
+  public void addDirectoryElement(final NodeDTO element) {
 
     DirectoryNode parent = this.doGetFolder(new Path(element.getParentPath()));
 
@@ -103,7 +103,7 @@ public class Directory {
    */
   public ReadFolder createFolder(final Folder newFolder) {
     newFolder.validate();
-    DirElementDTO create = new DirElementDTO(owner, newFolder);
+    NodeDTO create = new NodeDTO(owner, newFolder);
     create.validate();
     DirectoryNode parent = this.getFolder(newFolder.getParentPath());
 
@@ -149,11 +149,11 @@ public class Directory {
    * @param parentFolder - string of the parent path
    * @return
    */
-  public Set<DirElementDTO> getSubDirectory(final String parentFolder) {
+  public Set<NodeDTO> getSubDirectory(final String parentFolder) {
     Path parser = new Path(parentFolder);
     curr = this.doGetFolder(parser);
 
-    Set<DirElementDTO> toBeDeleted = curr.recurseFlatten(new HashSet<>(), owner);
+    Set<NodeDTO> toBeDeleted = curr.recurseFlatten(new HashSet<>(), owner);
     curr = root;
     return toBeDeleted;
   }
