@@ -76,14 +76,14 @@ public class FileService {
 
   public ReadFile deleteFile(final String fullPath, final String username) {
     logger.trace(">> deleteFile()");
-    NodeDTO fileElement = this.getFile(fullPath, username);
+    FileDTO fileElement = this.getFile(fullPath, username);
 
     if (fileElement == null) {
       logger.error(FILE_NOT_FOUND);
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, FILE_NOT_FOUND);
     }
 
-    directoryRepo.delete(fileElement);
+    fileRepo.delete(fileElement);
 
     logger.trace("<< deleteFile()");
     return new ReadFile(fileElement.getParentPath(), fileElement.getDiscriminator());
@@ -101,7 +101,7 @@ public class FileService {
 
     fileElement.setFileBytes(ByteBuffer.wrap(file.getFileBytes()));
     fileElement.validate();
-    directoryRepo.save(fileElement);
+    fileRepo.save(fileElement);
 
     logger.trace("<< updateFile()");
     return new ReadFile(file.getFullPath(), file.getDiscriminator());

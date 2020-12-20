@@ -4,10 +4,12 @@ import java.sql.Timestamp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.server.ResponseStatusException;
 import com.bc92.directoryservice.model.InvalidDiscriminatorException;
 import com.bc92.directoryservice.model.InvalidNodeCreationException;
 import com.bc92.directoryservice.model.InvalidPathException;
@@ -26,6 +28,13 @@ public class DirectoryControllerAdvice {
     return new ErrorMessage(HttpStatus.BAD_REQUEST, ex.getMessage());
   }
 
+  @ExceptionHandler(ResponseStatusException.class)
+  public ResponseEntity<ErrorMessage> handleResponseStatusException(
+      final ResponseStatusException ex) {
+    logger.error("This Exception was caught, returning {}", ex.getStatus());
+    return new ResponseEntity<>(new ErrorMessage(ex.getStatus(), ex.getMessage()), ex.getStatus());
+  }
+
   @ExceptionHandler(Exception.class)
   @ResponseStatus
   public ErrorMessage handleGenericException(final Exception ex) {
@@ -34,7 +43,6 @@ public class DirectoryControllerAdvice {
     return new ErrorMessage(HttpStatus.INTERNAL_SERVER_ERROR, "An internal server error occured",
         timestamp);
   }
-
 
 
 }

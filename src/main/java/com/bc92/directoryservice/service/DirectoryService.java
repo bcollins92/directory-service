@@ -63,16 +63,16 @@ public class DirectoryService {
   }
 
 
-  public ReadFolder deleteFolder(final String deleteFolder, final String username) {
+  public Directory deleteFolder(final String deleteFolder, final String username) {
     logger.trace(">> deleteFolder()");
 
     Directory dir = this.getUserDirectory(username);
     Set<NodeDTO> toBeDeleted = dir.getSubDirectory(deleteFolder);
-    ReadFolder deletedFolder = dir.deleteParentAndAllChildren(deleteFolder);
+    dir.deleteParentAndAllChildren(deleteFolder);
     directoryRepo.deleteAll(toBeDeleted);
 
     logger.trace("<< deleteFolder()");
-    return deletedFolder;
+    return dir;
   }
 
 }
