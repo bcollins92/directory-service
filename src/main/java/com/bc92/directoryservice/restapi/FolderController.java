@@ -3,7 +3,6 @@ package com.bc92.directoryservice.restapi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,6 +11,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import com.bc92.directoryservice.model.Directory;
 import com.bc92.directoryservice.service.DirectoryService;
@@ -31,6 +31,7 @@ public class FolderController {
 
 
   @PostMapping(DirectoryServiceConstants.FOLDER_API_PATH)
+  @ResponseStatus(HttpStatus.CREATED)
   @ResponseBody
   public ReadFolder createFolder(@RequestBody final Folder createFolder,
       final Authentication auth) {
@@ -39,6 +40,7 @@ public class FolderController {
   }
 
   @GetMapping(DirectoryServiceConstants.FOLDER_API_PATH)
+  @ResponseStatus(HttpStatus.OK)
   @ResponseBody
   public ReadFolder readFolder(@RequestParam final String folder, final Authentication auth) {
     logger.trace(">><< readFolder()");
@@ -46,6 +48,7 @@ public class FolderController {
   }
 
   @PutMapping(DirectoryServiceConstants.FOLDER_API_PATH)
+  @ResponseStatus(HttpStatus.OK)
   @ResponseBody
   public Directory updateFolder(@RequestBody final UpdateFolder folder, final Authentication auth) {
     logger.trace(">><< updateFolder()");
@@ -53,12 +56,10 @@ public class FolderController {
   }
 
   @DeleteMapping(DirectoryServiceConstants.FOLDER_API_PATH)
-  @ResponseBody
-  public ResponseEntity<Void> deleteFolder(@RequestParam final String folder,
-      final Authentication auth) {
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void deleteFolder(@RequestParam final String folder, final Authentication auth) {
     logger.trace(">><< deleteFolder()");
     directoryService.deleteFolder(folder, auth.getName());
-    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
 
 }

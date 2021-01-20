@@ -36,7 +36,7 @@ public class DirectoryControllerAdvice {
   }
 
   @ExceptionHandler(Exception.class)
-  @ResponseStatus
+  @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
   public ErrorMessage handleGenericException(final Exception ex) {
     Timestamp timestamp = new Timestamp(System.currentTimeMillis());
     logger.error("This Exception was caught, returning 500 at {}", timestamp, ex);

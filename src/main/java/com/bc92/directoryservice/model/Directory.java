@@ -47,7 +47,7 @@ public class Directory {
   }
 
   /**
-   * Return a new {@link #Directory} from the provided set of {@link #DirElementDTO}
+   * Creates a new {@link #Directory} from the provided set of {@link #DirElementDTO}
    *
    * @param elementsSet - set of elements representing the flattened directory tree
    * @param owner - string of the username of the owner of this directory

@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 import com.bc92.directoryservice.service.File;
 import com.bc92.directoryservice.service.FileService;
 import com.bc92.directoryservice.service.ReadFile;
@@ -31,21 +31,17 @@ public class FileController {
 
 
   @PostMapping(path = DirectoryServiceConstants.FILE_API_PATH, consumes = {"multipart/form-data"})
+  @ResponseStatus(HttpStatus.CREATED)
   @ResponseBody
-  public ReadFile uploadFile(@RequestParam(value = "file") final MultipartFile file,
-      @RequestParam final String parentPath, final Authentication auth) {
+  public void uploadFile(@RequestParam(value = "file") final MultipartFile file,
+      @RequestParam final String parentPath, final Authentication auth) throws IOException {
     logger.trace(">><< uploadFile()");
-    try {
-      return fileService.uploadFile(
-          new File(parentPath, file.getOriginalFilename(), file.getBytes()), auth.getName());
-    } catch (IOException e) {
-      logger.error("File upload encountered IO Error", e);
-      throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-          "File upload encountered IO Error");
-    }
+    fileService.uploadFile(new File(parentPath, file.getOriginalFilename(), file.getBytes()),
+        auth.getName());
   }
 
   @GetMapping(DirectoryServiceConstants.FILE_API_PATH)
+  @ResponseStatus(HttpStatus.OK)
   @ResponseBody
   public Resource readFile(@RequestParam final String fullPath, final Authentication auth) {
     logger.trace(">><< readFile()");
@@ -53,25 +49,21 @@ public class FileController {
   }
 
   @PutMapping(DirectoryServiceConstants.FILE_API_PATH)
+  @ResponseStatus(HttpStatus.OK)
   @ResponseBody
   public ReadFile updateFile(final MultipartFile file, @RequestParam final String parentPath,
-      final Authentication auth) {
+      final Authentication auth) throws IOException {
     logger.trace(">><< updateFolder()");
-    try {
-      return fileService.updateFile(
-          new File(parentPath, file.getOriginalFilename(), file.getBytes()), auth.getName());
-    } catch (IOException e) {
-      logger.error("File update encountered IO Error", e);
-      throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-          "File update encountered IO Error");
-    }
+    return fileService.updateFile(new File(parentPath, file.getOriginalFilename(), file.getBytes()),
+        auth.getName());
   }
 
   @DeleteMapping(DirectoryServiceConstants.FILE_API_PATH)
+  @ResponseStatus(HttpStatus.NO_CONTENT)
   @ResponseBody
-  public ReadFile deleteFile(@RequestParam final String fullPath, final Authentication auth) {
+  public void deleteFile(@RequestParam final String fullPath, final Authentication auth) {
     logger.trace(">><< deleteFolder()");
-    return fileService.deleteFile(fullPath, auth.getName());
+    fileService.deleteFile(fullPath, auth.getName());
   }
 
 }
