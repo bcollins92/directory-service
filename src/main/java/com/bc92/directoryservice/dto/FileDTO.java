@@ -21,7 +21,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@SolrDocument(collection = "test1")
+@SolrDocument(collection = "directory")
 public class FileDTO extends NodeDTO {
 
   @Indexed(name = "fileBytes")

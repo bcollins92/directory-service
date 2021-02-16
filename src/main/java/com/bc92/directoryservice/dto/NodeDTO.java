@@ -21,7 +21,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@SolrDocument(collection = "test1")
+@SolrDocument(collection = "directory")
 public class NodeDTO implements Comparable<NodeDTO> {
 
   public enum DirElementType {
@@ -52,6 +52,7 @@ public class NodeDTO implements Comparable<NodeDTO> {
     discriminator = file.getDiscriminator();
     fullPath = file.getFullPath();
     parentPath = file.getParentPath();
+    id = file.getId();
     this.validate();
   }
 
