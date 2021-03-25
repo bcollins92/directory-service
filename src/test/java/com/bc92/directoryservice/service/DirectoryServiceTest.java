@@ -3,9 +3,6 @@ package com.bc92.directoryservice.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.when;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -58,43 +55,6 @@ class DirectoryServiceTest {
     assertEquals(dirElements[0].getFullPath(), result.getFullPath());
     assertEquals(dirElements[4].getDiscriminator(), result.getFiles().toArray()[0]);
     assertEquals(dirElements[2].getDiscriminator(), result.getChildFolders().toArray()[0]);
-  }
-
-  @Test
-  void testUpdateFolder() {
-    String beforeName = "folder1";
-    String updatedName = "update";
-
-    UpdateFolder update = new UpdateFolder(new Folder(beforeName, "/root"), updatedName);
-
-    Directory result = dirService.updateFolder(update, testOwner);
-
-    result.flatten();
-
-    assertFalse(
-        result.flatten().stream()
-            .anyMatch(elem -> elem.getDiscriminator().equals(beforeName)
-                || elem.getFullPath().contains(beforeName)
-                || elem.getParentPath().contains(beforeName)),
-        "No element should reference the old folder anywhere");
-
-    List<NodeDTO> updated = result.flatten().stream()
-        .filter(elem -> elem.getDiscriminator().equals(updatedName)
-            || elem.getFullPath().contains(updatedName)
-            || elem.getParentPath().contains(updatedName))
-        .collect(Collectors.toList());
-
-    Collections.sort(updated);
-
-    assertEquals(updatedName, updated.get(0).getDiscriminator());
-    assertEquals("/root/" + updatedName, updated.get(0).getFullPath());
-
-    assertEquals("/root/" + updatedName, updated.get(1).getParentPath());
-    assertEquals("/root/" + updatedName + "/folder3", updated.get(1).getFullPath());
-
-    assertEquals("/root/" + updatedName, updated.get(2).getParentPath());
-    assertEquals("/root/" + updatedName + "/myFile.jpg", updated.get(2).getFullPath());
-
   }
 
   @Test

@@ -14,7 +14,6 @@ import com.bc92.directoryservice.dto.NodeDTO;
 import com.bc92.directoryservice.dto.NodeDTO.DirElementType;
 import com.bc92.directoryservice.service.Folder;
 import com.bc92.directoryservice.service.ReadFolder;
-import com.bc92.directoryservice.service.UpdateFolder;
 
 class DirectoryTest {
 
@@ -157,32 +156,6 @@ class DirectoryTest {
     }
 
   }
-
-  @Test
-  void recurseUpdateParentPath_updatesPathsCorrectly() {
-    dir = this.getDirectory();
-
-    dir.updateFolderDiscriminator(
-        new UpdateFolder(new Folder("folder1", "/root"), "updatedFolder"));
-
-    DirectoryNode updated = dir.getRoot().getChild("updatedFolder");
-
-    assertNotNull(updated, "updated should not be null");
-
-    assertEquals("/root/updatedFolder", updated.getFullPath(), "Full path should be updated");
-
-    assertEquals("/root/updatedFolder", updated.getChild("folder1-1").getParentPath(),
-        "Parent path of child folder must be updated");
-    assertEquals("/root/updatedFolder/folder1-1", updated.getChild("folder1-1").getFullPath(),
-        "Full path of child folder must be updated");
-
-    assertEquals("/root/updatedFolder", updated.getFile("myFile.jpg").getParentPath(),
-        "Parent path of child file must be updated");
-    assertEquals("/root/updatedFolder/myFile.jpg", updated.getFile("myFile.jpg").getFullPath(),
-        "Full path of child file must be updated");
-
-  }
-
 
   private Directory getDirectory() {
     return Directory.expand(this.getElementSet(), "TestOwner");

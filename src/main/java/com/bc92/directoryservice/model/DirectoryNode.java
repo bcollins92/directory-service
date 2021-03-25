@@ -128,34 +128,6 @@ public class DirectoryNode {
     return discriminator;
   }
 
-  public void updateDiscriminatorAndChildren(final String discriminator) {
-    if (DirectoryServiceConstants.ROOT_NODE_NAME.equals(this.discriminator)) {
-      throw new InvalidPathException(InvalidPathException.ROOT_NAME_IMMUTABLE);
-    }
-
-    Path.validateDiscriminator(discriminator);
-
-    String oldDiscriminator = this.discriminator;
-    this.discriminator = discriminator;
-    this.getParent().getChildren().put(this.discriminator, this);
-    this.getParent().getChildren().remove(oldDiscriminator);
-    this.recurseUpdateParentPath();
-  }
-
-  private void recurseUpdateParentPath() {
-    this.setParentPath(this.getParent().getFullPath());
-
-    if (parentPath.charAt(parentPath.length() - 1) == '/') {
-      parentPath = parentPath.substring(0, parentPath.length() - 1);
-    }
-
-    fullPath = (parentPath + DirectoryServiceConstants.PATH_DELIMINATOR + discriminator);
-    Path.validatePath(fullPath);
-
-    children.forEach((disc, node) -> node.recurseUpdateParentPath());
-    files.forEach((disc, file) -> file.updateParentPath(this.getFullPath()));
-  }
-
   public Set<NodeDTO> recurseFlatten(final Set<NodeDTO> flattened, final String owner) {
 
     if (!DirectoryServiceConstants.ROOT_NODE_NAME.equals(discriminator)) {

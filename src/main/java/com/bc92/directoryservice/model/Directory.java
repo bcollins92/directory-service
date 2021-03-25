@@ -11,7 +11,6 @@ import com.bc92.directoryservice.dto.NodeDTO;
 import com.bc92.directoryservice.dto.NodeDTO.DirElementType;
 import com.bc92.directoryservice.service.Folder;
 import com.bc92.directoryservice.service.ReadFolder;
-import com.bc92.directoryservice.service.UpdateFolder;
 import com.bc92.projectsdk.utils.JsonUtilities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
@@ -128,20 +127,6 @@ public class Directory {
     DirectoryNode folderNode = this.getFolder(readFolder);
     return new ReadFolder(folderNode);
   }
-
-  /**
-   * update the provided folder's discriminator. All child files and folders will be subsequently
-   * updated
-   *
-   * @param updateFolder - the folder to be updated
-   */
-  public void updateFolderDiscriminator(final UpdateFolder updateFolder) {
-    updateFolder.validate();
-
-    curr = this.doGetFolder(new Path(updateFolder.getTarget().getFullPath()));
-    curr.updateDiscriminatorAndChildren(updateFolder.getNewDiscriminator());
-  }
-
 
   /**
    * Collects the provided parentFolder and all of its child folders and files

@@ -34,6 +34,13 @@ public class DirectoryService {
     }
   }
 
+  /**
+   * Create the provided folder
+   *
+   * @param createFolder - DTO holding the folder information
+   * @param username - name of the user who owns the file
+   * @return ReadFolder - DTO containing file metadata
+   */
   public ReadFolder createFolder(final Folder createFolder, final String username) {
     logger.trace(">> createFolder()");
 
@@ -45,24 +52,25 @@ public class DirectoryService {
     return created;
   }
 
+  /**
+   * Read the specified folder
+   *
+   * @param readFolder - string of the full path to folder to be read
+   * @param username - name of the user who owns the file
+   * @return ReadFolder - DTO containing file metadata
+   */
   public ReadFolder readFolder(final String readFolder, final String username) {
     logger.trace(">> readFolder()");
     return this.getUserDirectory(username).readFolder(readFolder);
   }
 
-
-  public Directory updateFolder(final UpdateFolder updateFolder, final String username) {
-    logger.trace(">> updateFolder()");
-
-    Directory dir = this.getUserDirectory(username);
-    dir.updateFolderDiscriminator(updateFolder);
-    directoryRepo.saveAll(dir.getSubDirectory(updateFolder.getNewFullPath()));
-
-    logger.trace("<< updateFolder()");
-    return dir;
-  }
-
-
+  /**
+   * Delete the specified folder
+   *
+   * @param deleteFolder - string of the full path to folder to be read
+   * @param username - name of the user who owns the file
+   * @return Directory - resulting directory object with folder deleted
+   */
   public Directory deleteFolder(final String deleteFolder, final String username) {
     logger.trace(">> deleteFolder()");
 

@@ -54,28 +54,14 @@ class DirectoryNodeTest {
     DirectoryNode root = new DirectoryNode();
     DirectoryNode folder1 = root.addChild(new DirectoryNode(dirElements[0], root));
 
-    NodeDTO inconsistantDto = new NodeDTO(DirElementType.FOLDER, "TestOwner",
-        "folder1-1", "/root/folder1/folder1-1", "/root/folder-invalid/");
+    NodeDTO inconsistantDto = new NodeDTO(DirElementType.FOLDER, "TestOwner", "folder1-1",
+        "/root/folder1/folder1-1", "/root/folder-invalid/");
 
     assertThrows(IllegalArgumentException.class, () -> {
       new DirectoryNode(inconsistantDto, folder1);
     });
 
   }
-
-
-  @Test
-  void updateDiscriminatorAndChildren_nullOrEmptyDiscriminator_throwsException() {
-    DirectoryNode root = new DirectoryNode();
-
-    assertThrows(InvalidPathException.class, () -> {
-      root.updateDiscriminatorAndChildren("");
-    });
-    assertThrows(InvalidPathException.class, () -> {
-      root.updateDiscriminatorAndChildren(null);
-    });
-  }
-
 
   private DirectoryNode getDirectoryTree() {
     DirectoryNode root = new DirectoryNode();

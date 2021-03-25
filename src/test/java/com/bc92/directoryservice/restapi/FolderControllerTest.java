@@ -16,11 +16,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import com.bc92.directoryservice.model.Directory;
 import com.bc92.directoryservice.service.DirectoryService;
 import com.bc92.directoryservice.service.Folder;
 import com.bc92.directoryservice.service.ReadFolder;
-import com.bc92.directoryservice.service.UpdateFolder;
 import com.bc92.projectsdk.constants.DirectoryServiceConstants;
 import com.bc92.projectsdk.utils.JsonUtilities;
 
@@ -71,27 +69,6 @@ class FolderControllerTest {
         .param("folder", "/root/folder1"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.fullPath").value("/root/folder1"))
-        .andReturn();
-
-  }
-
-  @Test
-  @WithUserDetails
-  void testUpdateFolder() throws Exception {
-
-    UpdateFolder updateFolder = new UpdateFolder(new Folder("folder1", "/root"), "update");
-    Directory dir = new Directory("test");
-    dir.createFolder(new Folder("update", "/root"));
-
-    when(dirService.updateFolder(any(UpdateFolder.class), eq("user"))).thenReturn(dir);
-
-
-    MvcResult result = mvc.perform(MockMvcRequestBuilders
-        .put(DirectoryServiceConstants.FOLDER_API_PATH)
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(JsonUtilities.objectToJson(updateFolder)))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.root.children.update.fullPath").value("/root/update"))
         .andReturn();
 
   }
